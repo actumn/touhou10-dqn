@@ -86,8 +86,10 @@ class TH10(object):
     def calculate_reward(self, prev_powers, prev_life):
         enemies = self.memory_reader.enemies_info()
         bullets = self.memory_reader.bullet_info()
-        return reward_in_env + \
-               reward_on_power * (self.player.powers - prev_powers) -\
+        # reward = reward_in_env if self.player.invincible_time <= 0 else 0
+        reward = reward_in_env
+        return reward + \
+               reward_on_power * (self.player.powers - prev_powers) - \
                death_reward * (self.player.life - prev_life) + \
                reward_on_dodge * self.player.is_near(bullets) + \
                reward_on_hit * self.player.on_hit(enemies)

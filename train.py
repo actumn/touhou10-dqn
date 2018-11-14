@@ -16,8 +16,6 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
-th10_pid, th10_hwnd = find_process('th10.exe')
-reader = MemoryReader(th10_pid)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 game = TH10()
 memory = deque()
@@ -66,17 +64,16 @@ class DQN(nn.Module):
 
 def transform_state(single_state):
     single_state = transform.resize(single_state, (transform_height, transform_width))
-    single_state = exposure.rescale_intensity(single_state, out_range=(0, 255))
+    # numpy HWC to torch CHW
     single_state = single_state.transpose((2, 0, 1))
     single_state = torch.from_numpy(single_state)
-    # numpy HWC to torch CHW
     single_state = single_state.unsqueeze(0)
     single_state = single_state.to(device, dtype=torch.float)
     return single_state
 
 
 model = DQN().to(device)
-# model.load_state_dict(torch.load('./weights'))
+model.load_state_dict(torch.load('./weights'))
 optimizer = optim.Adam(model.parameters())
 Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward'))
 
@@ -92,7 +89,7 @@ while True:
 
     eps_threshold = eps_end + (eps_start - eps_end) * math.exp(-1. * steps / eps_decay)
     if random.random() <= eps_threshold:
-        action_index = 1 if random.random() < 0.5 else 0  # choose a random action
+        action_index = np.random.randint(num_of_actions)  # choose a random action
     else:
         q_index = model(state).max(1)[1]  # input a stack of 4 images, get the prediction
         action_index = q_index.item()
@@ -136,5 +133,13 @@ while True:
     if steps % timesteps_to_save_weights == 0:
         torch.save(model.state_dict(), './weights')
 
-    print("Timestep: %d, Action: %d, Reward: %.2f, Q: %.2f,Loss: %.2f" % (steps, action_index, reward, Q_sa[-1], loss))
+    '''
+    img = state[0, 0:3]
+    img = img.data.cpu().numpy()
+    img = img.transpose((1, 2, 0))
+    print(img.shape)
+    plt.imshow(img)
+    plt.savefig(f'{steps}.png')
+    '''
+    print("Timestep: %d, Action: %d, Reward: %.2f, Q: %.2f, Loss: %.2f" % (steps, action_index, reward, Q_sa[-1], loss))
 
