@@ -16,7 +16,6 @@ bytes_read = c_ulong(0)
 def read_buffer(process_handle, address, buffer):
     if windll.kernel32.ReadProcessMemory(process_handle,
                                          address, buffer, sizeof(buffer), byref(bytes_read)):
-        print('success memory read buffer: ', buffer[0], buffer[1], buffer[2], buffer[3])
         return buffer
     else:
         raise MemoryError()
@@ -42,7 +41,6 @@ class MemoryReader(object):
     def read_float(self, address):
         buffer = read_buffer(self.process_handle, address, buf_dword)
         return unpack('f', buffer)[0]
-
 
     # python porting from https://github.com/binvec/TH10_DataReversing/blob/master/TH10_DataReversing/data.cpp
     def bullet_info(self):
@@ -165,7 +163,7 @@ class MemoryReader(object):
         w = self.read_float(base_addr + 0x41C) * 2
         h = w
         slow = self.read_float(base_addr + 0x4474)
-        powers = self.read_float(0x00474C48) / 20
+        powers = self.read_int(0x00474C48) / 20.
         player_type = self.read_float(0x00474C68)
         item_obtain_range = self.read_float(0x00476FB0) + player_type * 4
         if slow:
@@ -177,7 +175,6 @@ class MemoryReader(object):
         return Player(p=p, v=v, w=w, h=h,
                       powers=powers, life=life, player_type=player_type, slow=slow,
                       item_obtain_range=item_obtain_range, player_status=player_status, invincible_time=invincible_time)
-
 
     def lasers_info(self):
         lasers = []
@@ -205,3 +202,4 @@ class MemoryReader(object):
                 obj_addr = obj_next
 
         return lasers
+
