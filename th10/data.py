@@ -1,8 +1,20 @@
+import math
+
+
 class Vec2d(object):
 
     def __init__(self, x, y):
         self.x = x
         self.y = y
+
+    def __str__(self):
+        return f"(x: {self.x}, y: {self.y})"
+
+    def norm(self):
+        return math.sqrt(self.x ** 2 + self.y ** 2)
+
+    def minus(self, other):
+        return Vec2d(self.x - other.x, self.y - other.y)
 
 
 class GameObject(object):
@@ -50,6 +62,20 @@ class Player(GameObject):
         }
         for prop, default in prop_defaults.items():
             setattr(self, prop, kwargs.get(prop, default))
+
+    def on_hit(self, enemies):
+        for enemy in enemies:
+            if abs(enemy.p.x - self.p.x) < 10:
+                return 1
+
+        return 0
+
+    def is_near(self, game_objects):
+        for game_obj in game_objects:
+            if self.p.minus(game_obj.p).norm() < 10.:
+                return 1
+
+        return 0
 
 class Laser(GameObject):
 

@@ -64,7 +64,7 @@ class MemoryReader(object):
                         h = self.read_float(ebx + 0x3F4)
                         dx = self.read_float(ebx + 0x3C0)
                         dy = self.read_float(ebx + 0x3C4)
-                        self.bullets += [
+                        bullets += [
                             GameObject(Vec2d(x, y), Vec2d(dx, dy), w, h)
                         ]
 
@@ -92,7 +92,7 @@ class MemoryReader(object):
                     h = self.read_float(base_addr + 0xBC)
                     dx = self.read_float(base_addr + 0x38)
                     dy = self.read_float(base_addr + 0x3C)
-                    self.enemies += [
+                    enemies += [
                         GameObject(Vec2d(x, y), Vec2d(dx, dy), w, h)
                     ]
                 if obj_next == 0:

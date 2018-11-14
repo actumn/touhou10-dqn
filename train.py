@@ -27,27 +27,33 @@ class DQN(nn.Module):
     def __init__(self):
         super(DQN, self).__init__()
         self.conv1 = nn.Conv2d(img_channels, 32, kernel_size=8, stride=2)
-        self.pool1 = nn.MaxPool2d(kernel_size=8, stride=2, padding=1)
+        self.conv2 = nn.Conv2d(32, 32, kernel_size=8, stride=2)
+        self.pool1 = nn.MaxPool2d(kernel_size=8, stride=1, padding=2)
 
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=8, stride=2)
+        self.conv3 = nn.Conv2d(32, 64, kernel_size=4, stride=2)
+        self.conv4 = nn.Conv2d(64, 64, kernel_size=4, stride=1)
         self.pool2 = nn.MaxPool2d(kernel_size=4, stride=1, padding=1)
 
-        self.conv3 = nn.Conv2d(64, 128, kernel_size=4, stride=2)
-        self.pool3 = nn.MaxPool2d(kernel_size=4, stride=1, padding=1)
+        self.conv5 = nn.Conv2d(64, 128, kernel_size=2, stride=1)
+        self.conv6 = nn.Conv2d(128, 128, kernel_size=2, stride=1)
+        self.pool3 = nn.MaxPool2d(kernel_size=2, stride=1, padding=0)
 
-        self.fc1 = nn.Linear(1152, 512)
+        self.fc1 = nn.Linear(2048, 512)
         self.fc2 = nn.Linear(512, 256)
         self.fc3 = nn.Linear(256, 128)
         self.head = nn.Linear(128, num_of_actions)
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
         x = self.pool1(x)
 
-        x = F.relu(self.conv2(x))
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
         x = self.pool2(x)
 
-        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
         x = self.pool3(x)
 
         x = x.view(x.size(0), -1)  # <-- flatten
@@ -59,11 +65,12 @@ class DQN(nn.Module):
 
 
 def transform_state(single_state):
-    single_state = color.rgb2gray(single_state)
     single_state = transform.resize(single_state, (transform_height, transform_width))
     single_state = exposure.rescale_intensity(single_state, out_range=(0, 255))
+    single_state = single_state.transpose((2, 0, 1))
     single_state = torch.from_numpy(single_state)
-    single_state = single_state.unsqueeze(0).unsqueeze(0)
+    # numpy HWC to torch CHW
+    single_state = single_state.unsqueeze(0)
     single_state = single_state.to(device, dtype=torch.float)
     return single_state
 
@@ -77,6 +84,7 @@ Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward'
 state, _, _ = game.play(-1)
 state = transform_state(state)
 state = torch.cat((state, state, state, state), 1)
+
 steps = 0
 while True:
     loss = 0
@@ -91,7 +99,7 @@ while True:
 
     next_state, reward, is_terminal = game.play(action_index)
     next_state = transform_state(next_state)
-    next_state = torch.cat((next_state, state[:, :3]), 1)
+    next_state = torch.cat((next_state, state[:, :9]), 1)
 
     '''
     We need enough states in our experience replay deque so that we can take a random sample from it of the size we declared.
