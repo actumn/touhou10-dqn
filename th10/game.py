@@ -89,6 +89,6 @@ class TH10(object):
         return reward_in_env + \
                reward_on_power * (self.player.powers - prev_powers) -\
                death_reward * (self.player.life - prev_life) + \
-               reward_on_power * self.player.is_near(bullets) + \
-               reward_on_power * self.player.on_hit(enemies)
+               reward_on_dodge * self.player.is_near(bullets) + \
+               reward_on_hit * self.player.on_hit(enemies)
 
