@@ -74,13 +74,18 @@ def transform_state(single_state):
 
 
 model = DQN().to(device)
+"""
+test_input = torch.rand(1, 4, 128, 128).to(device, dtype=torch.float)
+model(test_input)
+"""
 # model.load_state_dict(torch.load('./weights'))
 optimizer = optim.Adam(model.parameters())
-Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward', 'is_terminal'))
+Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward'))
 
-state, _, _ = game.play(-1)
-state = transform_state(state)
-state = torch.cat((state, state, state, state, state, state, state, state, state, state, state, state), 1)
+last_screen, _, _ = game.play(-1)
+curr_screen, _, _ = game.play(-1)
+state = transform_state(curr_screen - last_screen)
+state = torch.cat((state, state, state, state), 1)
 
 steps = 0
 while True:
@@ -94,20 +99,22 @@ while True:
         q_index = model(state).max(1)[1]  # input a stack of 4 images, get the prediction
         action_index = q_index.item()
 
-    next_state, reward, is_terminal = game.play(action_index)
-    if next_state is None:
+    last_screen = curr_screen
+    curr_screen, reward, is_terminal = game.play(action_index)
+    if curr_screen is None:
         continue
-    next_state = transform_state(next_state)
-    next_state = torch.cat((next_state, state[:, :11]), 1)
+    next_state = transform_state(curr_screen - last_screen) if not is_terminal else None
+    next_state = torch.cat((next_state, state[:, :3]), 1)
 
     '''
     We need enough states in our experience replay deque so that we can take a random sample from it of the size we declared.
     Therefore we wait until a certain number and observe the environment until we're ready.
     '''
-    memory.append((state, action_index, next_state, reward, is_terminal))
+    memory.append((state, action_index, next_state, reward))
     if len(memory) > exp_replay_memory:
         memory.popleft()
 
+    # Optimize
     if len(memory) > batch_size:
         transitions = random.sample(memory, batch_size)
         batch = Transition(*zip(*transitions))
@@ -149,3 +156,4 @@ while True:
     plt.savefig(f'steps/{steps}.png')
     '''
     print("Timestep: %d, Action: %d, Reward: %.2f, Q: %.2f, Loss: %.2f" % (steps, action_index, reward, Q_sa[-1], loss))
+
