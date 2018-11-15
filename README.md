@@ -15,3 +15,12 @@ Inspired by
 - Windows 10
 - Anaconda 4.5.11
 - python 3.6
+
+## How it works
+Like other deep q-learning examples, it takes a game screenshot from th10.exe at real time(th10/game.py) and 
+treat it as a deep learning model input. 
+
+## Before Run
+1. You must have touhou 10.0 - Mountaion of Faith
+2. Before run train.py, There must be th10.exe on your processes
+3. Before run train.py, enter 'game start' or 'practice start' 

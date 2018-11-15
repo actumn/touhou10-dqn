@@ -63,24 +63,24 @@ class DQN(nn.Module):
 
 
 def transform_state(single_state):
+    single_state = color.rgb2gray(single_state)
     single_state = transform.resize(single_state, (transform_height, transform_width))
     # numpy HWC to torch CHW
-    single_state = single_state.transpose((2, 0, 1))
+    # single_state = single_state.transpose((2, 0, 1))
     single_state = torch.from_numpy(single_state)
-    single_state = single_state.unsqueeze(0)
+    single_state = single_state.unsqueeze(0).unsqueeze(0)
     single_state = single_state.to(device, dtype=torch.float)
     return single_state
 
 
 model = DQN().to(device)
-model.load_state_dict(torch.load('./weights'))
+# model.load_state_dict(torch.load('./weights'))
 optimizer = optim.Adam(model.parameters())
-Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward'))
-
+Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward', 'is_terminal'))
 
 state, _, _ = game.play(-1)
 state = transform_state(state)
-state = torch.cat((state, state, state, state), 1)
+state = torch.cat((state, state, state, state, state, state, state, state, state, state, state, state), 1)
 
 steps = 0
 while True:
@@ -95,14 +95,16 @@ while True:
         action_index = q_index.item()
 
     next_state, reward, is_terminal = game.play(action_index)
+    if next_state is None:
+        continue
     next_state = transform_state(next_state)
-    next_state = torch.cat((next_state, state[:, :9]), 1)
+    next_state = torch.cat((next_state, state[:, :11]), 1)
 
     '''
     We need enough states in our experience replay deque so that we can take a random sample from it of the size we declared.
     Therefore we wait until a certain number and observe the environment until we're ready.
     '''
-    memory.append((state, action_index, next_state, reward))
+    memory.append((state, action_index, next_state, reward, is_terminal))
     if len(memory) > exp_replay_memory:
         memory.popleft()
 
@@ -117,7 +119,13 @@ while True:
         Q_sa = model(input_next_state).max(1)[0]
 
         train_reward = torch.tensor(batch.reward, device=device, dtype=torch.float)
-        targets[torch.arange(batch_size), batch.action] = train_reward + gamma * Q_sa
+        train_result = torch.tensor(batch.reward, device=device, dtype=torch.float)
+
+        i = train_result == 0.
+        train_result[i] = train_reward[i] + gamma * Q_sa[i]
+        train_result[train_result == 1.] = death_reward * 10
+
+        targets[torch.arange(batch_size), batch.action] = train_result
 
         outputs = model(inputs)
         loss = F.mse_loss(outputs, targets)
@@ -137,9 +145,7 @@ while True:
     img = state[0, 0:3]
     img = img.data.cpu().numpy()
     img = img.transpose((1, 2, 0))
-    print(img.shape)
     plt.imshow(img)
-    plt.savefig(f'{steps}.png')
+    plt.savefig(f'steps/{steps}.png')
     '''
     print("Timestep: %d, Action: %d, Reward: %.2f, Q: %.2f, Loss: %.2f" % (steps, action_index, reward, Q_sa[-1], loss))
-

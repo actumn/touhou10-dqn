@@ -1,4 +1,4 @@
-from config import reward_in_env, death_reward, reward_on_power, reward_on_dodge, reward_on_hit
+from config import reward_in_env, death_reward, reward_on_power, reward_on_hit, reward_on_near_bullet
 from .memory_reader import MemoryReader
 from .process import find_process, image_grab, set_foreground
 from .directkeys import press_key, release_key, DLK_Z, DLK_LEFT, DLK_RIGHT, DLK_UP, DLK_DOWN
@@ -53,26 +53,29 @@ class TH10(object):
         set_foreground(self.hwnd)
         action(action_index)
 
-        enemies = self.memory_reader.enemies_info()
-
         prev_powers = self.player.powers
-        prev_life = self.player.life if self.player.life > 0 else 10  # 10 for reset game
+        prev_life = self.player.life
         self.player = self.memory_reader.player_info()
         if self.player.life > 0:
+            prev_life = prev_life if prev_life > 0 else 10  # 10 for reset game
             reward = self.calculate_reward(prev_powers, prev_life)
             return np.array(image_grab(self.hwnd))[44:488, 34:416], reward, False
+        elif self.player.life == prev_life:
+            self.restart_on_end()
+            self.player = self.memory_reader.player_info()
+            return None, 0, False
         else:
-            release_key(DLK_Z)
-            release_key(DLK_LEFT)
-            release_key(DLK_RIGHT)
-            release_key(DLK_UP)
-            release_key(DLK_DOWN)
             self.restart_on_end()
             self.player = self.memory_reader.player_info()
             return np.array(image_grab(self.hwnd))[44:488, 34:416], death_reward, True
 
     def restart_on_end(self):
         set_foreground(self.hwnd)
+        release_key(DLK_Z)
+        release_key(DLK_LEFT)
+        release_key(DLK_RIGHT)
+        release_key(DLK_UP)
+        release_key(DLK_DOWN)
         press_key(DLK_Z)
         time.sleep(0.2)
         release_key(DLK_Z)
@@ -91,6 +94,6 @@ class TH10(object):
         return reward + \
                reward_on_power * (self.player.powers - prev_powers) - \
                death_reward * (self.player.life - prev_life) + \
-               reward_on_dodge * self.player.is_near(bullets) + \
+               reward_on_near_bullet * self.player.is_near(bullets) + \
                reward_on_hit * self.player.on_hit(enemies)
 

@@ -65,17 +65,17 @@ class Player(GameObject):
 
     def on_hit(self, enemies):
         for enemy in enemies:
-            if abs(enemy.p.x - self.p.x) < 10 and enemy.p.y > self.p.y:
+            if abs(enemy.p.x - self.p.x) < 20. and enemy.p.y < self.p.y:
                 return 1
 
-        return 0
+        return -1
 
     def is_near(self, game_objects):
         for game_obj in game_objects:
-            if 5. < self.p.minus(game_obj.p).norm() < 20.:
+            if self.p.minus(game_obj.p).norm() < 15.:
                 return 1
 
-        return 0
+        return -1
 
 class Laser(GameObject):
 

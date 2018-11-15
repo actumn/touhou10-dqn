@@ -84,14 +84,14 @@ class MemoryReader(object):
                 obj_addr = self.read_int(base_addr)
                 obj_next = self.read_int(base_addr + 0x4)
                 obj_addr += 0x103C
-                t = self.read_uint(base_addr + 0x1444)
+                t = self.read_uint(obj_addr + 0x1444)
                 if t & 0x52 == 0:
-                    x = self.read_float(base_addr + 0x2C)
-                    y = self.read_float(base_addr + 0x30)
-                    w = self.read_float(base_addr + 0xB8)
-                    h = self.read_float(base_addr + 0xBC)
-                    dx = self.read_float(base_addr + 0x38)
-                    dy = self.read_float(base_addr + 0x3C)
+                    x = self.read_float(obj_addr + 0x2C)
+                    y = self.read_float(obj_addr + 0x30)
+                    w = self.read_float(obj_addr + 0xB8)
+                    h = self.read_float(obj_addr + 0xBC)
+                    dx = self.read_float(obj_addr + 0x38)
+                    dy = self.read_float(obj_addr + 0x3C)
                     enemies += [
                         GameObject(Vec2d(x, y), Vec2d(dx, dy), w, h)
                     ]
