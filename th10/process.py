@@ -1,6 +1,7 @@
 import win32gui
 import win32process
 import psutil
+import operator
 from PIL import ImageGrab
 
 
@@ -8,9 +9,9 @@ def set_foreground(hwnd):
     win32gui.SetForegroundWindow(hwnd)
 
 
-def image_grab(hwnd):
-    bbox = win32gui.GetWindowRect(hwnd)
-    return ImageGrab.grab(bbox)
+def image_grab(hwnd, bbox):
+    window_bbox = win32gui.GetWindowRect(hwnd)
+    return ImageGrab.grab(tuple(map(operator.add, bbox, window_bbox)))
 
 
 def find_process(process_name):

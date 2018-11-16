@@ -1,7 +1,7 @@
-from config import reward_in_env, death_reward, reward_on_power, reward_on_hit, reward_on_near_bullet
+from config import REWARD_IN_ENV, REWARD_DEATH, REWARD_ON_POWER, REWARD_ON_HIT, REWARD_ON_NEAR_BULLET
 from .memory_reader import MemoryReader
 from .process import find_process, image_grab, set_foreground
-from .directkeys import press_key, release_key, DLK_Z, DLK_LEFT, DLK_RIGHT, DLK_UP, DLK_DOWN
+from .directkeys import press_key, release_key, DLK_Z, DLK_LEFT, DLK_RIGHT, DLK_UP, DLK_DOWN, DLK_LSHIFT
 
 import numpy as np
 import time
@@ -12,6 +12,7 @@ def action(action_index):
         return
 
     press_key(DLK_Z)
+    press_key(DLK_LSHIFT)
     release_key(DLK_LEFT)
     release_key(DLK_RIGHT)
     release_key(DLK_UP)
@@ -59,19 +60,20 @@ class TH10(object):
         if self.player.life > 0:
             prev_life = prev_life if prev_life > 0 else 10  # 10 for reset game
             reward = self.calculate_reward(prev_powers, prev_life)
-            return np.array(image_grab(self.hwnd))[44:488, 34:416], reward, False
-        elif self.player.life == prev_life:
+            return image_grab(self.hwnd, (44, 34, 488, 416)), reward, False
+        elif self.player.life == prev_life:  # Not on playing game
             self.restart_on_end()
             self.player = self.memory_reader.player_info()
             return None, 0, False
         else:
             self.restart_on_end()
             self.player = self.memory_reader.player_info()
-            return np.array(image_grab(self.hwnd))[44:488, 34:416], death_reward, True
+            return image_grab(self.hwnd, (44, 34, 488, 416)), 0, True
 
     def restart_on_end(self):
         set_foreground(self.hwnd)
         release_key(DLK_Z)
+        release_key(DLK_LSHIFT)
         release_key(DLK_LEFT)
         release_key(DLK_RIGHT)
         release_key(DLK_UP)
@@ -90,10 +92,10 @@ class TH10(object):
         enemies = self.memory_reader.enemies_info()
         bullets = self.memory_reader.bullet_info()
         # reward = reward_in_env if self.player.invincible_time <= 0 else 0
-        reward = reward_in_env
+        reward = REWARD_IN_ENV
         return reward + \
-               reward_on_power * (self.player.powers - prev_powers) - \
-               death_reward * (self.player.life - prev_life) + \
-               reward_on_near_bullet * self.player.is_near(bullets) + \
-               reward_on_hit * self.player.on_hit(enemies)
+               REWARD_ON_POWER * (self.player.powers - prev_powers) - \
+               REWARD_DEATH * (self.player.life - prev_life) + \
+               REWARD_ON_NEAR_BULLET * self.player.is_near(bullets) + \
+               REWARD_ON_HIT * self.player.on_hit(enemies)
 
