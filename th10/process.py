@@ -11,7 +11,8 @@ def set_foreground(hwnd):
 
 def image_grab(hwnd, bbox):
     window_bbox = win32gui.GetWindowRect(hwnd)
-    return ImageGrab.grab(tuple(map(operator.add, bbox, window_bbox)))
+    bbox = tuple(map(operator.add, bbox, window_bbox))
+    return ImageGrab.grab(bbox)
 
 
 def find_process(process_name):

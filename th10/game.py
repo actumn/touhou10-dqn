@@ -61,7 +61,7 @@ class TH10(object):
         if self.player.life > 0:
             prev_life = prev_life if prev_life > 0 else 10  # 10 for reset game
             reward = self.calculate_reward(prev_powers, prev_life)
-            return image_grab(self.hwnd, (44, 34, 488, 416)), reward, False
+            return image_grab(self.hwnd, (34, 36, -228, -18)), reward, False
         elif self.player.life == prev_life:  # Not on playing game
             self.restart_on_end()
             self.player = self.memory_reader.player_info()
@@ -69,7 +69,7 @@ class TH10(object):
         else:
             self.restart_on_end()
             self.player = self.memory_reader.player_info()
-            return image_grab(self.hwnd, (44, 34, 488, 416)), 0, True
+            return image_grab(self.hwnd, (34, 36, -228, -18)), 0, True
 
     def restart_on_end(self):
         set_foreground(self.hwnd)
