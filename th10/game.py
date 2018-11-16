@@ -1,7 +1,7 @@
 from config import REWARD_IN_ENV, REWARD_DEATH, REWARD_ON_POWER, REWARD_ON_HIT, REWARD_ON_NEAR_BULLET
 from .memory_reader import MemoryReader
 from .process import find_process, image_grab, set_foreground
-from .directkeys import press_key, release_key, DLK_Z, DLK_LEFT, DLK_RIGHT, DLK_UP, DLK_DOWN, DLK_LSHIFT
+from .directkeys import press_key, release_key, DIK_Z, DIK_LEFT, DIK_RIGHT, DIK_UP, DIK_DOWN, DIK_LSHIFT, DIK_LCONTROL
 
 import numpy as np
 import time
@@ -11,34 +11,35 @@ def action(action_index):
     if action_index < 0:
         return
 
-    press_key(DLK_Z)
-    press_key(DLK_LSHIFT)
-    release_key(DLK_LEFT)
-    release_key(DLK_RIGHT)
-    release_key(DLK_UP)
-    release_key(DLK_DOWN)
+    press_key(DIK_Z)
+    press_key(DIK_LSHIFT)
+    press_key(DIK_LCONTROL)
+    release_key(DIK_LEFT)
+    release_key(DIK_RIGHT)
+    release_key(DIK_UP)
+    release_key(DIK_DOWN)
     if action_index == 0:
         return
     elif action_index == 1:
-        press_key(DLK_LEFT)
+        press_key(DIK_LEFT)
     elif action_index == 2:
-        press_key(DLK_RIGHT)
+        press_key(DIK_RIGHT)
     elif action_index == 3:
-        press_key(DLK_UP)
+        press_key(DIK_UP)
     elif action_index == 4:
-        press_key(DLK_DOWN)
+        press_key(DIK_DOWN)
     elif action_index == 5:
-        press_key(DLK_LEFT)
-        press_key(DLK_UP)
+        press_key(DIK_LEFT)
+        press_key(DIK_UP)
     elif action_index == 6:
-        press_key(DLK_LEFT)
-        press_key(DLK_DOWN)
+        press_key(DIK_LEFT)
+        press_key(DIK_DOWN)
     elif action_index == 7:
-        press_key(DLK_RIGHT)
-        press_key(DLK_UP)
+        press_key(DIK_RIGHT)
+        press_key(DIK_UP)
     elif action_index == 8:
-        press_key(DLK_RIGHT)
-        press_key(DLK_DOWN)
+        press_key(DIK_RIGHT)
+        press_key(DIK_DOWN)
 
 
 class TH10(object):
@@ -72,21 +73,21 @@ class TH10(object):
 
     def restart_on_end(self):
         set_foreground(self.hwnd)
-        release_key(DLK_Z)
-        release_key(DLK_LSHIFT)
-        release_key(DLK_LEFT)
-        release_key(DLK_RIGHT)
-        release_key(DLK_UP)
-        release_key(DLK_DOWN)
-        press_key(DLK_Z)
+        release_key(DIK_Z)
+        release_key(DIK_LSHIFT)
+        release_key(DIK_LEFT)
+        release_key(DIK_RIGHT)
+        release_key(DIK_UP)
+        release_key(DIK_DOWN)
+        press_key(DIK_Z)
         time.sleep(0.2)
-        release_key(DLK_Z)
-        press_key(DLK_DOWN)
+        release_key(DIK_Z)
+        press_key(DIK_DOWN)
         time.sleep(0.2)
-        release_key(DLK_DOWN)
-        press_key(DLK_Z)
+        release_key(DIK_DOWN)
+        press_key(DIK_Z)
         time.sleep(0.2)
-        release_key(DLK_Z)
+        release_key(DIK_Z)
 
     def calculate_reward(self, prev_powers, prev_life):
         enemies = self.memory_reader.enemies_info()
