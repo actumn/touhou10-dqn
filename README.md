@@ -1,7 +1,7 @@
 # Touhou10-dqn  
 ![image](image/th10.jpg)  
 This project is focusing on DQN AI for the bullet hell games from Touhou 10 - Mountaion of Faith, using PyTorch.  
-Because it is on progress, it would be not perfect.
+Because it is on progress, it would be not ~~working~~ perfect.
   
 Inspired by
 - [TH10_DataReversing](https://github.com/binvec/TH10_DataReversing)
