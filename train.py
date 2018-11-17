@@ -64,7 +64,15 @@ class DQN(nn.Module):
         return x
 
 
-transform = T.Compose([T.Grayscale(), T.Resize((TRANSFORM_HEIGHT, TRANSFORM_WIDTH)), T.ToTensor()])
+class ToTensorWithoutScaling(object):
+    """
+    HWC -> CHW
+    """
+    def __call__(self, picture):
+        return torch.ByteTensor(np.array(picture)).unsqueeze(0)
+
+
+transform = T.Compose([T.Grayscale(), T.Resize((TRANSFORM_HEIGHT, TRANSFORM_WIDTH)), ToTensorWithoutScaling()])
 
 
 def transform_state(single_state):

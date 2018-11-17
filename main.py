@@ -14,13 +14,14 @@ state = transform_state(state)
 state = torch.cat((state, state, state, state), 1)
 
 while True:
-        q = policy_net(state).max(1)
-        action = q[1].view(1, 1)
-        next_state, reward, is_terminal = game.play(action.item())
+    q = policy_net(state).max(1)
+    action = q[1].view(1, 1)
+    next_state, reward, is_terminal = game.play(action.item())
 
-        if next_state is None:
-            break
+    if next_state is None:
+        break
 
-        next_state = transform_state(next_state)
-        next_state = torch.cat((next_state, state[:, :3]), 1)
-        state = next_state
+    next_state = transform_state(next_state)
+    next_state = torch.cat((next_state, state[:, :3]), 1)
+    state = next_state
+    print('action: ', action)
