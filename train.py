@@ -76,7 +76,7 @@ def transform_state(single_state):
 
 
 policy_net = DQN().to(device)
-# policy_net.load_state_dict(torch.load(f'./weights_{NUM_OF_ACTIONS}'))
+policy_net.load_state_dict(torch.load(f'./weights_{NUM_OF_ACTIONS}'))
 target_net = DQN().to(device)
 target_net.load_state_dict(policy_net.state_dict())
 target_net.eval()
