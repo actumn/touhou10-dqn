@@ -1,4 +1,4 @@
-from config import REWARD_IN_ENV, REWARD_DEATH, REWARD_ON_POWER, REWARD_ON_HIT, REWARD_ON_NEAR_BULLET
+from config import REWARD_IN_ENV, REWARD_DEATH, REWARD_ON_POWER, REWARD_ON_HIT, REWARD_ON_BE_SHOT
 from .memory_reader import MemoryReader
 from .process import find_process, image_grab, set_foreground
 from .directkeys import press_key, release_key, DIK_Z, DIK_LEFT, DIK_RIGHT, DIK_UP, DIK_DOWN, DIK_LSHIFT, DIK_LCONTROL
@@ -97,6 +97,6 @@ class TH10(object):
         return reward + \
                REWARD_ON_POWER * (self.player.powers - prev_powers) - \
                REWARD_DEATH * (self.player.life - prev_life) + \
-               REWARD_ON_NEAR_BULLET * self.player.is_near(bullets) + \
+               REWARD_ON_BE_SHOT * self.player.is_near(bullets) + \
                REWARD_ON_HIT * self.player.on_hit(enemies)
 

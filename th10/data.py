@@ -68,14 +68,18 @@ class Player(GameObject):
             if abs(enemy.p.x - self.p.x) < 20. and enemy.p.y < self.p.y:
                 return 1
 
-        return -1
+        return 0
 
     def is_near(self, game_objects):
         for game_obj in game_objects:
-            if self.p.minus(game_obj.p).norm() < 15.:
+            if self.p.minus(game_obj.p).norm() < 12. and not self.is_dead():
                 return 1
 
-        return -1
+        return 0
+
+    def is_dead(self):
+        return self.invincible_time > 0
+
 
 class Laser(GameObject):
 
