@@ -14,7 +14,14 @@ Inspired by
 ## Environment
 - Windows 10
 - Anaconda 4.5.11
-- python 3.6
+
+```
+git clone https://github.com/actumn/touhou10-dqn
+cd touhou10-dqn
+conda create -n myenv -f environment.yml
+conda activate myenv
+python main.py or train.py 
+```
 
 ## How it works
 Like other deep q-learning examples, it takes a game screenshot from th10.exe at real time(th10/game.py) and 

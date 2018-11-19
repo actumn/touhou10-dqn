@@ -4,12 +4,9 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import deque, namedtuple
-from skimage import color, transform, exposure
 from PIL import Image
 
 from th10.game import TH10
-from th10.process import find_process, image_grab
-from th10.memory_reader import MemoryReader
 from config import *
 
 import torch
@@ -53,9 +50,6 @@ class DQN(nn.Module):
 
 
 class ToTensorWithoutScaling(object):
-    """
-    HWC -> CHW
-    """
     def __call__(self, picture):
         return torch.ByteTensor(np.array(picture)).unsqueeze(0)
 
