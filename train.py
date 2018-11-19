@@ -29,29 +29,25 @@ class DQN(nn.Module):
         self.conv1 = nn.Conv2d(IMG_CHANNELS, 32, kernel_size=8, stride=2)
         self.bn1 = nn.BatchNorm2d(32)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=8, stride=2)
-        self.pool1 = nn.MaxPool2d(kernel_size=8, stride=1, padding=2)
 
         self.conv3 = nn.Conv2d(64, 128, kernel_size=4, stride=2)
         self.bn2 = nn.BatchNorm2d(128)
         self.conv4 = nn.Conv2d(128, 256, kernel_size=4, stride=2)
-        self.pool2 = nn.MaxPool2d(kernel_size=4, stride=1, padding=1)
+        self.conv5 = nn.Conv2d(256, 512, kernel_size=4, stride=1)
 
-        self.fc1 = nn.Linear(2304, 512)
-        self.fc2 = nn.Linear(512, 128)
-        self.head = nn.Linear(128, NUM_OF_ACTIONS)
+        self.fc1 = nn.Linear(2048, 512)
+        self.head = nn.Linear(512, NUM_OF_ACTIONS)
 
     def forward(self, x):
         x = self.bn1(F.relu(self.conv1(x)))
         x = F.relu(self.conv2(x))
-        x = self.pool1(x)
 
         x = self.bn2(F.relu(self.conv3(x)))
         x = F.relu(self.conv4(x))
-        x = self.pool2(x)
+        x = F.relu(self.conv5(x))
 
         x = x.view(x.size(0), -1)  # <-- flatten
-        x = F.dropout(F.relu(self.fc1(x)))
-        x = F.dropout(F.relu(self.fc2(x)))
+        x = F.relu(self.fc1(x))
         x = self.head(x)
         return x
 
@@ -75,26 +71,25 @@ def transform_state(single_state):
     return single_state
 
 
-policy_net = DQN().to(device)
-policy_net.load_state_dict(torch.load(f'./weights_{NUM_OF_ACTIONS}'))
-target_net = DQN().to(device)
-target_net.load_state_dict(policy_net.state_dict())
-target_net.eval()
-"""
-test_input = torch.rand(1, 4, 128, 128).to(device, dtype=torch.float)
-policy_net(test_input)
-"""
-optimizer = optim.Adam(policy_net.parameters())
-Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward', 'is_terminal'))
-
-
-state, _, _ = game.play(-1)
-state = transform_state(state)
-state = torch.cat((state, state, state, state), 1)
-
-steps = 0
-
 if __name__ == '__main__':
+    policy_net = DQN().to(device)
+    policy_net.load_state_dict(torch.load(f'./weights_{NUM_OF_ACTIONS}'))
+    target_net = DQN().to(device)
+    target_net.load_state_dict(policy_net.state_dict())
+    target_net.eval()
+    """
+    test_input = torch.rand(1, 4, 128, 128).to(device, dtype=torch.float)
+    policy_net(test_input)
+    """
+    optimizer = optim.Adam(policy_net.parameters())
+    Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward', 'is_terminal'))
+
+
+    state, _, _ = game.play(-1)
+    state = transform_state(state)
+    state = torch.cat((state, state, state, state), 1)
+
+    steps = 0
     while True:
         loss = 0
         train_q = torch.tensor([0])
