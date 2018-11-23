@@ -10,10 +10,10 @@ class Vec2d(object):
     def __str__(self):
         return f"(x: {self.x}, y: {self.y})"
 
-    def norm(self):
+    def __abs__(self):
         return math.sqrt(self.x ** 2 + self.y ** 2)
 
-    def minus(self, other):
+    def __sub__(self, other):
         return Vec2d(self.x - other.x, self.y - other.y)
 
 
@@ -72,7 +72,7 @@ class Player(GameObject):
 
     def is_near(self, game_objects):
         for game_obj in game_objects:
-            if self.p.minus(game_obj.p).norm() < 12. and not self.is_dead():
+            if abs(self.p.minus - game_obj.p) < 12. and not self.is_dead():
                 return 1
 
         return 0
@@ -84,8 +84,8 @@ class Player(GameObject):
 class Laser(GameObject):
 
     def __init__(self, **kwargs):
-        super(Item, self).__init__(kwargs.get('p', Vec2d(0, 0)),
-                                   kwargs.get('v', Vec2d(0, 0)),
-                                   kwargs.get('w', 0),
-                                   kwargs.get('h', 0))
+        super(Laser, self).__init__(kwargs.get('p', Vec2d(0, 0)),
+                                    kwargs.get('v', Vec2d(0, 0)),
+                                    kwargs.get('w', 0),
+                                    kwargs.get('h', 0))
         self.arc = kwargs.get('arc', 0)
